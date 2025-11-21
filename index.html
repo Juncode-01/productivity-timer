@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Focus Timer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>Focus Timer</h1>
+
+    <div class="session-settings">
+      <label>
+        Session length (minutes):
+        <input type="number" id="sessionLength" value="25" min="1" max="180">
+      </label>
+    </div>
+
+    <div class="timer-display" id="timerDisplay">
+      25:00
+    </div>
+
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn" disabled>Pause</button>
+      <button id="resetBtn" disabled>Reset</button>
+    </div>
+
+    <p class="status" id="statusText">
+      Ready to focus.
+    </p>
+
+    <div class="hint">
+      ⏱ Timer will pause if you leave this tab or are idle too long.
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
