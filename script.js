@@ -14,6 +14,8 @@ const startBtn = document.getElementById("startBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const resetBtn = document.getElementById("resetBtn");
 const statusText = document.getElementById("statusText");
+const forestFriend = document.getElementById("forestFriend");
+const themeToggle = document.getElementById("themeToggle");
 
 // ====== Utility functions ======
 function formatTime(seconds) {
@@ -25,6 +27,58 @@ function formatTime(seconds) {
 function updateDisplay() {
   timerDisplay.textContent = formatTime(remainingSeconds);
 }
+
+function setRunningVisuals(active) {
+  if (forestFriend) {
+    forestFriend.classList.toggle("is-running", active);
+  }
+}
+
+// ====== Theme handling ======
+const THEME_KEY = "forest-theme";
+
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.body.classList.add("light-theme");
+  } else {
+    document.body.classList.remove("light-theme");
+  }
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (err) {
+    // ignore storage issues
+  }
+}
+
+function initTheme() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem(THEME_KEY);
+  } catch (err) {
+    stored = null;
+  }
+
+  if (stored === "light" || stored === "dark") {
+    applyTheme(stored);
+    return stored;
+  }
+
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  const theme = prefersLight ? "light" : "dark";
+  applyTheme(theme);
+  return theme;
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.contains("light-theme");
+  applyTheme(isLight ? "dark" : "light");
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", toggleTheme);
+}
+
+initTheme();
 
 // ====== Timer control ======
 function startTimer() {
@@ -38,6 +92,7 @@ function startTimer() {
   startBtn.disabled = true;
   pauseBtn.disabled = false;
   resetBtn.disabled = false;
+  setRunningVisuals(true);
 
   timerInterval = setInterval(() => {
     const now = Date.now();
@@ -59,6 +114,7 @@ function startTimer() {
       startBtn.disabled = false;
       pauseBtn.disabled = true;
       // keep reset enabled so they can restart
+      setRunningVisuals(false);
     }
   }, 1000);
 }
@@ -70,6 +126,7 @@ function pauseTimer(message = "Paused.") {
   statusText.textContent = message;
   startBtn.disabled = false;
   pauseBtn.disabled = true;
+  setRunningVisuals(false);
 }
 
 function autoPause(message) {
@@ -89,6 +146,7 @@ function resetTimer() {
   startBtn.disabled = false;
   pauseBtn.disabled = true;
   resetBtn.disabled = true;
+  setRunningVisuals(false);
 }
 
 // ====== Event listeners ======
@@ -113,22 +171,3 @@ pauseBtn.addEventListener("click", () => {
 resetBtn.addEventListener("click", () => {
   resetTimer();
 });
-
-// Track activity for idle detection
-function recordActivity() {
-  lastActivityTime = Date.now();
-}
-
-window.addEventListener("mousemove", recordActivity);
-window.addEventListener("keydown", recordActivity);
-window.addEventListener("click", recordActivity);
-
-// Tab visibility change
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && isRunning) {
-    autoPause("Paused (tab not active).");
-  }
-});
-
-// Initial display
-resetTimer();
