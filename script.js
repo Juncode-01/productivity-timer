@@ -1,7 +1,14 @@
 // ====== State ======
-const DEFAULT_MINUTES = 25;   // default 25 min
-let totalSeconds = DEFAULT_MINUTES * 60;
-let remainingSeconds = totalSeconds;
+const DEFAULT_FOCUS_MINUTES = 25;
+const DEFAULT_BREAK_MINUTES = 5;
+const DEFAULT_CYCLES = 4;
+
+let focusSecondsTotal = DEFAULT_FOCUS_MINUTES * 60;
+let breakSecondsTotal = DEFAULT_BREAK_MINUTES * 60;
+let totalCycles = DEFAULT_CYCLES;
+let currentCycle = 1;
+let isBreak = false;
+let remainingSeconds = focusSecondsTotal;
 let timerInterval = null;
 let isRunning = false;
 
@@ -11,13 +18,18 @@ const IDLE_LIMIT_MS = 60 * 1000; // 60 seconds of no input = idle
 
 const timerDisplay = document.getElementById("timerDisplay");
 const sessionLengthInput = document.getElementById("sessionLength");
+const breakLengthInput = document.getElementById("breakLength");
+const cycleCountInput = document.getElementById("cycleCount");
 const startBtn = document.getElementById("startBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const resetBtn = document.getElementById("resetBtn");
 const statusText = document.getElementById("statusText");
+const cycleStatus = document.getElementById("cycleStatus");
 const forestFriend = document.getElementById("forestFriend");
 const themeToggle = document.getElementById("themeToggle");
-const GROWTH_CLASSES = ["growth-1", "growth-2", "growth-3"];
+
+const MIN_GROWTH = 0.7;
+const MAX_GROWTH = 1.3;
 
 // ====== Utility functions ======
 function formatTime(seconds) {
@@ -44,59 +56,69 @@ function setStatus(message) {
   }
 }
 
+function setCycleStatus(phaseLabel) {
+  if (cycleStatus) {
+    const label = phaseLabel || (isBreak ? "Break" : "Focus");
+    cycleStatus.textContent = `${label} • Cycle ${currentCycle} of ${totalCycles}`;
+  }
+}
+
 function setDisabled(target, value) {
   if (target) {
     target.disabled = value;
   }
 }
 
-function applyGrowthStage(index = 0) {
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function updateGrowth(progressOverride) {
   if (!forestFriend) return;
 
-  GROWTH_CLASSES.forEach((cls) => forestFriend.classList.remove(cls));
-  const stage = GROWTH_CLASSES[Math.min(Math.max(index, 0), GROWTH_CLASSES.length - 1)];
-  if (stage) {
-    forestFriend.classList.add(stage);
-  }
-}
+  const phaseTotal = isBreak ? breakSecondsTotal : focusSecondsTotal;
+  let progress = progressOverride;
 
-function resetGrowth() {
-  applyGrowthStage(0);
-}
-
-function updateGrowth() {
-  if (!forestFriend) return;
-  const total = totalSeconds;
-  if (!total || total <= 0) {
-    resetGrowth();
-    return;
+  if (progress === undefined) {
+    if (isBreak) {
+      progress = 1; // stay lush during breaks
+    } else if (!phaseTotal || phaseTotal <= 0) {
+      progress = 0;
+    } else {
+      progress = 1 - remainingSeconds / phaseTotal;
+    }
   }
 
-  const progress = 1 - remainingSeconds / total;
-  let stageIndex = 0;
+  progress = clamp(progress, 0, 1);
 
-  if (progress >= 2 / 3) {
-    stageIndex = 2;
-  } else if (progress >= 1 / 3) {
-    stageIndex = 1;
-  }
-
-  applyGrowthStage(stageIndex);
+  const growthScale = MIN_GROWTH + (MAX_GROWTH - MIN_GROWTH) * progress;
+  forestFriend.style.setProperty("--growth-scale", growthScale.toFixed(3));
 }
 
-function readSessionMinutes() {
-  if (!sessionLengthInput) return DEFAULT_MINUTES;
+function readSessionMinutes(input, fallback, min, max) {
+  if (!input) return fallback;
 
-  const parsed = parseInt(sessionLengthInput.value, 10);
-  if (Number.isFinite(parsed) && parsed > 0) {
-    const clamped = Math.min(180, Math.max(1, parsed));
+  const parsed = parseInt(input.value, 10);
+  if (Number.isFinite(parsed)) {
+    const clamped = clamp(parsed, min, max);
     if (clamped !== parsed) {
-      sessionLengthInput.value = clamped;
+      input.value = clamped;
     }
     return clamped;
   }
-  sessionLengthInput.value = DEFAULT_MINUTES;
-  return DEFAULT_MINUTES;
+
+  input.value = fallback;
+  return fallback;
+}
+
+function syncConfiguration() {
+  const focusMins = readSessionMinutes(sessionLengthInput, DEFAULT_FOCUS_MINUTES, 1, 180);
+  const breakMins = readSessionMinutes(breakLengthInput, DEFAULT_BREAK_MINUTES, 0, 60);
+  const cycles = readSessionMinutes(cycleCountInput, DEFAULT_CYCLES, 1, 12);
+
+  focusSecondsTotal = focusMins * 60;
+  breakSecondsTotal = breakMins * 60;
+  totalCycles = cycles;
 }
 
 // ====== Theme handling ======
@@ -146,16 +168,71 @@ if (themeToggle) {
 initTheme();
 
 // ====== Timer control ======
+function getPhaseLabel() {
+  return isBreak ? "Break" : "Focus";
+}
+
+function handlePhaseComplete() {
+  if (isBreak) {
+    if (currentCycle < totalCycles) {
+      currentCycle += 1;
+      isBreak = false;
+      remainingSeconds = focusSecondsTotal;
+      setStatus(`Focus cycle ${currentCycle} of ${totalCycles}.`);
+      setCycleStatus();
+      updateDisplay();
+      updateGrowth(0);
+    } else {
+      isRunning = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      setStatus("All cycles complete 🎉");
+      setCycleStatus("Done");
+      setDisabled(startBtn, false);
+      setDisabled(pauseBtn, true);
+      setRunningVisuals(false);
+    }
+  } else {
+    // focus completed
+    if (breakSecondsTotal > 0) {
+      isBreak = true;
+      remainingSeconds = breakSecondsTotal;
+      setStatus("Break time 🌿");
+      setCycleStatus();
+      updateDisplay();
+      updateGrowth(1);
+    } else if (currentCycle < totalCycles) {
+      currentCycle += 1;
+      isBreak = false;
+      remainingSeconds = focusSecondsTotal;
+      setStatus(`Focus cycle ${currentCycle} of ${totalCycles}.`);
+      setCycleStatus();
+      updateDisplay();
+      updateGrowth(0);
+    } else {
+      isRunning = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      setStatus("Session complete! 🎉");
+      setCycleStatus("Done");
+      setDisabled(startBtn, false);
+      setDisabled(pauseBtn, true);
+      setRunningVisuals(false);
+    }
+  }
+}
+
 function startTimer() {
   if (isRunning) return;
   if (remainingSeconds <= 0) {
-    remainingSeconds = totalSeconds;
-    resetGrowth();
+    remainingSeconds = isBreak ? breakSecondsTotal : focusSecondsTotal;
+    updateGrowth(isBreak ? 1 : 0);
     updateDisplay();
   }
 
   isRunning = true;
-  setStatus("Focusing...");
+  setStatus(isBreak ? "Break time 🌿" : `Focus cycle ${currentCycle} of ${totalCycles}.`);
+  setCycleStatus();
   setDisabled(startBtn, true);
   setDisabled(pauseBtn, false);
   setDisabled(resetBtn, false);
@@ -176,14 +253,7 @@ function startTimer() {
     updateGrowth();
 
     if (remainingSeconds <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      isRunning = false;
-      setStatus("Session complete! 🎉");
-      setDisabled(startBtn, false);
-      setDisabled(pauseBtn, true);
-      // keep reset enabled so they can restart
-      setRunningVisuals(false);
+      handlePhaseComplete();
     }
   }, 1000);
 }
@@ -208,13 +278,15 @@ function resetTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
 
-  const mins = readSessionMinutes();
-  totalSeconds = mins * 60;
-  remainingSeconds = totalSeconds;
+  syncConfiguration();
+  currentCycle = 1;
+  isBreak = false;
+  remainingSeconds = focusSecondsTotal;
   updateDisplay();
-  resetGrowth();
+  updateGrowth(0);
 
   setStatus("Ready to focus.");
+  setCycleStatus();
   setDisabled(startBtn, false);
   setDisabled(pauseBtn, true);
   setDisabled(resetBtn, true);
@@ -223,15 +295,32 @@ function resetTimer() {
 
 // ====== Event listeners ======
 
-// Update timer when session length changes
+// Update timer when session lengths or cycles change
+function handleConfigChange() {
+  const wasRunning = isRunning;
+  pauseTimer("Adjusted settings.");
+  syncConfiguration();
+  currentCycle = 1;
+  isBreak = false;
+  remainingSeconds = focusSecondsTotal;
+  updateDisplay();
+  updateGrowth(0);
+  setCycleStatus();
+  if (wasRunning) {
+    startTimer();
+  }
+}
+
 if (sessionLengthInput) {
-  sessionLengthInput.addEventListener("change", () => {
-    const mins = readSessionMinutes();
-    totalSeconds = mins * 60;
-    remainingSeconds = totalSeconds;
-    updateDisplay();
-    resetGrowth();
-  });
+  sessionLengthInput.addEventListener("change", handleConfigChange);
+}
+
+if (breakLengthInput) {
+  breakLengthInput.addEventListener("change", handleConfigChange);
+}
+
+if (cycleCountInput) {
+  cycleCountInput.addEventListener("change", handleConfigChange);
 }
 
 // Buttons
