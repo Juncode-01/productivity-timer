@@ -123,7 +123,7 @@ body {
   padding: 26px 28px 30px;
   border-radius: 22px;
   box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  max-width: 440px;
+  max-width: 460px;
   width: 100%;
   text-align: center;
   position: relative;
@@ -223,11 +223,20 @@ body.light-theme .theme-icon {
   margin-bottom: 18px;
   font-size: 14px;
   color: var(--muted);
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.session-settings label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .session-settings input {
-  margin-left: 8px;
-  width: 90px;
+  width: 110px;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -253,29 +262,17 @@ body.light-theme .theme-icon {
 }
 
 .forest-friend {
-  --growth-scale: 1;
-  width: 96px;
-  height: 96px;
+  --growth-scale: 0.72;
+  width: 110px;
+  height: 110px;
   color: var(--leaf);
   position: absolute;
-  top: 14px;
-  left: 18px;
-  opacity: 0.75;
+  top: 8px;
+  left: 14px;
+  opacity: 0.8;
   transform: scale(var(--growth-scale));
   transform-origin: center;
   transition: transform 0.8s ease, opacity 0.5s ease;
-}
-
-.forest-friend.growth-1 {
-  --growth-scale: 0.92;
-}
-
-.forest-friend.growth-2 {
-  --growth-scale: 1.04;
-}
-
-.forest-friend.growth-3 {
-  --growth-scale: 1.14;
 }
 
 .friend-icon {
@@ -285,7 +282,7 @@ body.light-theme .theme-icon {
 
 .forest-friend.is-running {
   animation: wiggle 2.6s ease-in-out infinite;
-  opacity: 0.95;
+  opacity: 0.96;
 }
 
 .timer-display {
@@ -353,8 +350,15 @@ button#resetBtn {
   min-height: 20px;
   font-size: 14px;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   letter-spacing: 0.3px;
+}
+
+.cycle-status {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: 0.4px;
 }
 
 .hint {
@@ -418,15 +422,24 @@ button#resetBtn {
     font-size: 24px;
   }
 
+  .session-settings label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .session-settings input {
+    width: 100%;
+  }
+
   .timer-display {
     font-size: 46px;
     padding: 18px 20px;
   }
 
   .forest-friend {
-    width: 82px;
-    height: 82px;
-    top: 10px;
-    left: 12px;
+    width: 92px;
+    height: 92px;
+    top: 6px;
+    left: 8px;
   }
 }
