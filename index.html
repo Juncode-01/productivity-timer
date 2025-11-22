@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forest Timer</title>
+  <title>Focus Timer</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Ambient forest background -->
   <div class="background">
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
@@ -26,70 +25,92 @@
     </div>
   </div>
 
-  <!-- Main app card -->
-  <main class="app shell fade-in">
+  <div class="app shell fade-in">
     <header class="app-header">
       <div class="title-wrap">
         <svg class="leaf-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <path d="M53 11C36 9 16 18 9 35c-6 15 5 20 13 20 20 0 33-16 33-36 0-3-1-6-2-8Z"
-                fill="currentColor" opacity="0.9" />
-          <path d="M15 46c6-9 14-15 23-19"
-                stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+          <path d="M53 11C36 9 16 18 9 35c-6 15 5 20 13 20 20 0 33-16 33-36 0-3-1-6-2-8Z" fill="currentColor" opacity="0.9"/>
+          <path d="M15 46c6-9 14-15 23-19" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
         </svg>
         <div>
           <p class="eyebrow">Focus</p>
           <h1>Forest Timer</h1>
         </div>
       </div>
-
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="theme-icon" aria-hidden="true"></span>
       </button>
     </header>
 
-    <section class="session-settings">
+    <div class="session-settings">
       <label>
-        Session length (minutes):
-        <input type="number" id="sessionLength" value="25" min="1" max="180" />
+        Focus length (minutes):
+        <input type="number" id="sessionLength" value="25" min="1" max="180">
       </label>
-    </section>
+      <label>
+        Break length (minutes):
+        <input type="number" id="breakLength" value="5" min="0" max="60">
+      </label>
+      <label>
+        Cycles:
+        <input type="number" id="cycleCount" value="4" min="1" max="12">
+      </label>
+    </div>
 
-    <section class="timer-area">
+    <div class="timer-area">
       <div class="forest-friend" id="forestFriend" aria-hidden="true">
-        <svg viewBox="0 0 64 64" class="friend-icon">
-          <circle cx="32" cy="36" r="18" fill="currentColor" opacity="0.14" />
-          <path d="M20 34c0-7 5-12 12-12s12 5 12 12c0 5-3 9-8 11.5V52l-8-4v-2.5c-5-2-8-6.5-8-11.5Z"
-                fill="currentColor" />
-          <circle cx="26" cy="34" r="2.4" fill="#f6f8fb" />
-          <circle cx="38" cy="34" r="2.4" fill="#f6f8fb" />
-          <circle cx="26" cy="34" r="1.1" fill="#1b3d2b" />
-          <circle cx="38" cy="34" r="1.1" fill="#1b3d2b" />
-          <path d="M32 38c-2 0-3 1-3 1.8 0 .7.9 1.2 3 1.2s3-.5 3-1.2C35 39 34 38 32 38Z"
-                fill="#1b3d2b" opacity="0.9" />
-          <path d="M32 24c2.5-4 6.5-6 10-6-2 4.5-5 7-10 8.5V24Z" fill="#cde3cc" opacity="0.7" />
-          <path d="M32 24c-2.5-4-6.5-6-10-6 2 4.5 5 7 10 8.5V24Z" fill="#cde3cc" opacity="0.7" />
+        <svg viewBox="0 0 120 140" class="friend-icon" role="img" aria-label="Growing plant">
+          <defs>
+            <linearGradient id="stemGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#b6f2c9" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#6ab78b" stop-opacity="0.95" />
+            </linearGradient>
+            <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#d8ffe8" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#8fd7a8" stop-opacity="0.9" />
+            </linearGradient>
+          </defs>
+          <g opacity="0.18" filter="url(#shadow)">
+            <ellipse cx="60" cy="114" rx="36" ry="10" fill="#0b1c16" />
+          </g>
+          <g stroke-linecap="round" stroke-linejoin="round">
+            <path d="M60 108c0-28 4-44 4-60" stroke="url(#stemGradient)" stroke-width="6" fill="none" />
+            <path d="M60 108c0-26-6-40-6-55" stroke="url(#stemGradient)" stroke-width="5" fill="none" opacity="0.9" />
+            <path d="M66 56c12-7 22-3 26 4-11 4-20 6-28 2z" fill="url(#leafGradient)" opacity="0.55" />
+            <path d="M54 50c-14-10-26-8-34 3 13 5 23 9 32 7z" fill="url(#leafGradient)" opacity="0.65" />
+            <path d="M63 76c10-9 20-9 28-1-10 6-19 9-26 7z" fill="url(#leafGradient)" opacity="0.6" />
+            <path d="M57 69c-12-12-23-12-31-2 11 7 19 12 27 10z" fill="url(#leafGradient)" opacity="0.7" />
+            <path d="M60 94c9-12 18-15 26-9-8 7-15 12-22 12z" fill="url(#leafGradient)" opacity="0.65" />
+            <path d="M60 92c-9-12-19-14-27-7 8 7 15 11 22 11z" fill="url(#leafGradient)" opacity="0.7" />
+            <circle cx="60" cy="36" r="8" fill="#c6f5d9" opacity="0.9" />
+            <circle cx="52" cy="40" r="3" fill="#1c3d2e" opacity="0.9" />
+            <circle cx="66" cy="38" r="3" fill="#1c3d2e" opacity="0.9" />
+            <path d="M56 45c1.6 2 4.4 2 6.2 0" stroke="#1c3d2e" stroke-width="2" opacity="0.9" />
+          </g>
         </svg>
       </div>
-
       <div class="timer-display breathing" id="timerDisplay">
         25:00
       </div>
-    </section>
+    </div>
 
-    <section class="controls">
+    <div class="controls">
       <button id="startBtn">Start</button>
       <button id="pauseBtn" disabled>Pause</button>
       <button id="resetBtn" disabled>Reset</button>
-    </section>
+    </div>
 
     <p class="status" id="statusText">
       Ready to focus.
     </p>
-
-    <p class="hint">
-      ⏱ Timer will pause if you leave this tab or are idle too long.
+    <p class="cycle-status" id="cycleStatus" aria-live="polite">
+      Focus • Cycle 1 of 4
     </p>
-  </main>
+
+    <div class="hint">
+      ⏱ Timer will pause if you leave this tab or are idle too long.
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
