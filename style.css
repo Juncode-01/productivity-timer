@@ -2,8 +2,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
 :root {
@@ -39,8 +39,6 @@ body.light-theme {
 }
 
 body {
-  background: #0f172a;
-  color: #e5e7eb;
   background: linear-gradient(140deg, var(--forest-deep), var(--forest-moss));
   color: var(--text);
   min-height: 100vh;
@@ -53,11 +51,14 @@ body {
   transition: background 0.6s ease, color 0.4s ease;
 }
 
+/* Background glows & fireflies */
+
 .background {
   position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  z-index: 0;
 }
 
 .ambient-glow {
@@ -121,12 +122,9 @@ body {
 .firefly:nth-child(9) { bottom: 12%; left: 24%; animation-delay: 2.5s; }
 .firefly:nth-child(10) { bottom: 24%; right: 26%; animation-delay: 4.5s; }
 
+/* Main app card */
+
 .app {
-  background: #020617;
-  padding: 24px 32px;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  max-width: 400px;
   background: var(--panel);
   padding: 26px 28px 30px;
   border-radius: 22px;
@@ -138,22 +136,16 @@ body {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
-h1 {
-  font-size: 24px;
 .shell::before {
   content: "";
   position: absolute;
   inset: 14px;
   border-radius: 18px;
   background: var(--forest-haze);
-  z-index: 0;
-}
-
-.app > * {
-  position: relative;
-  z-index: 1;
+  z-index: -1;
 }
 
 .app-header {
@@ -191,18 +183,25 @@ h1 {
   color: var(--text);
 }
 
+/* Theme toggle */
+
 .theme-toggle {
   border: none;
   border-radius: 999px;
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, rgba(154, 230, 193, 0.3), rgba(125, 182, 145, 0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(154, 230, 193, 0.3),
+    rgba(125, 182, 145, 0.2)
+  );
   color: var(--leaf);
   display: grid;
   place-items: center;
   cursor: pointer;
   box-shadow: var(--control-shadow);
-  transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease, filter 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.3s ease,
+    background 0.3s ease, filter 0.3s ease;
 }
 
 .theme-toggle:hover {
@@ -220,17 +219,29 @@ h1 {
   height: 20px;
   border-radius: 50%;
   position: relative;
-  background: conic-gradient(from 120deg, var(--leaf), var(--leaf-strong), var(--leaf));
-  box-shadow: inset -6px -6px 12px rgba(0, 0, 0, 0.18), inset 4px 4px 8px rgba(255, 255, 255, 0.12);
+  background: conic-gradient(
+    from 120deg,
+    var(--leaf),
+    var(--leaf-strong),
+    var(--leaf)
+  );
+  box-shadow: inset -6px -6px 12px rgba(0, 0, 0, 0.18),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.12);
 }
 
 body.light-theme .theme-icon {
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #ffe7b0 45%, #f5c97a 100%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    #fff 0%,
+    #ffe7b0 45%,
+    #f5c97a 100%
+  );
   box-shadow: inset -6px -6px 14px rgba(255, 227, 185, 0.6);
 }
 
+/* Session settings */
+
 .session-settings {
-  margin-bottom: 16px;
   margin-bottom: 18px;
   font-size: 14px;
   color: var(--muted);
@@ -238,12 +249,6 @@ body.light-theme .theme-icon {
 
 .session-settings input {
   margin-left: 8px;
-  width: 80px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px solid #4b5563;
-  background: #020617;
-  color: #e5e7eb;
   width: 90px;
   padding: 10px 12px;
   border-radius: 12px;
@@ -251,7 +256,8 @@ body.light-theme .theme-icon {
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    background 0.3s ease;
 }
 
 .session-settings input:focus {
@@ -260,6 +266,8 @@ body.light-theme .theme-icon {
   box-shadow: 0 0 0 3px rgba(154, 230, 193, 0.15);
   background: rgba(255, 255, 255, 0.06);
 }
+
+/* Timer */
 
 .timer-area {
   position: relative;
@@ -292,51 +300,46 @@ body.light-theme .theme-icon {
 }
 
 .timer-display {
-  font-size: 48px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin: 16px 0 20px;
   font-size: 58px;
   font-weight: 800;
   letter-spacing: 1.8px;
   padding: 24px 28px;
   width: 100%;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 16px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 16px 40px rgba(0, 0, 0, 0.25);
   color: var(--text);
   text-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
   animation: breathe 8s ease-in-out infinite;
 }
 
+/* Controls */
+
 .controls {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
   gap: 10px;
   margin-bottom: 14px;
 }
 
 button {
   border: none;
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
   border-radius: 16px;
   padding: 10px 18px;
   font-size: 15px;
   cursor: pointer;
-  background: #22c55e;
-  color: #022c22;
-  font-weight: 600;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.2s ease;
   background: linear-gradient(140deg, #6fcb9f, #4da07c);
   color: #082315;
   font-weight: 700;
   box-shadow: var(--control-shadow);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.3s ease, filter 0.25s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    opacity 0.3s ease, filter 0.25s ease;
 }
 
 button:disabled {
@@ -345,8 +348,6 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.5);
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 12px 30px rgba(111, 203, 159, 0.35);
   filter: brightness(1.03);
@@ -358,23 +359,20 @@ button:active:not(:disabled) {
 }
 
 button#pauseBtn {
-  background: #f97316;
-  color: #1b1307;
   background: linear-gradient(140deg, #f0b184, #d48b61);
   color: #2c1307;
 }
 
 button#resetBtn {
-  background: #ef4444;
-  color: #450a0a;
   background: linear-gradient(140deg, #f08080, #d45c5c);
   color: #330909;
 }
 
+/* Status text */
+
 .status {
   min-height: 20px;
   font-size: 14px;
-  color: #9ca3af;
   color: var(--muted);
   margin-bottom: 8px;
   letter-spacing: 0.3px;
@@ -382,19 +380,16 @@ button#resetBtn {
 
 .hint {
   font-size: 12px;
-  color: #6b7280;
   color: var(--muted);
   opacity: 0.9;
 }
+
+/* Animations */
 
 .fade-in {
   animation: fadeIn 0.9s ease forwards;
   opacity: 0;
   transform: translateY(8px);
-}
-
-.breathing {
-  animation: breathe 8s ease-in-out infinite;
 }
 
 @keyframes fadeIn {
@@ -405,32 +400,63 @@ button#resetBtn {
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
 }
 
 @keyframes wiggle {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  20% { transform: translateY(-3px) rotate(-2deg); }
-  40% { transform: translateY(2px) rotate(2deg); }
-  60% { transform: translateY(-2px) rotate(-1deg); }
-  80% { transform: translateY(1px) rotate(1deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  20% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
+  40% {
+    transform: translateY(2px) rotate(2deg);
+  }
+  60% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  80% {
+    transform: translateY(1px) rotate(1deg);
+  }
 }
 
 @keyframes float-glow {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-20px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes drift {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(20px, -30px, 0) scale(1.1); }
-  100% { transform: translate3d(-10px, 20px, 0) scale(0.95); }
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(20px, -30px, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-10px, 20px, 0) scale(0.95);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.9; }
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 @media (max-width: 520px) {
