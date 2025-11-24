@@ -123,7 +123,7 @@ body {
   padding: 26px 28px 30px;
   border-radius: 22px;
   box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  max-width: 460px;
+  max-width: 480px;
   width: 100%;
   text-align: center;
   position: relative;
@@ -236,7 +236,7 @@ body.light-theme .theme-icon {
 }
 
 .session-settings input {
-  width: 110px;
+  width: 120px;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -253,6 +253,11 @@ body.light-theme .theme-icon {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.timer-area is now as per earlier? Wait we need full file? continue from earlier portion to end consistent.
+
+Continue.
+
+```css
 .timer-area {
   position: relative;
   display: grid;
@@ -263,12 +268,15 @@ body.light-theme .theme-icon {
 
 .forest-friend {
   --growth-scale: 0.72;
-  width: 110px;
-  height: 110px;
+  --leaf1-opacity: 0.85;
+  --leaf2-opacity: 0.15;
+  --leaf3-opacity: 0.02;
+  width: 116px;
+  height: 116px;
   color: var(--leaf);
   position: absolute;
-  top: 8px;
-  left: 14px;
+  top: 6px;
+  left: 10px;
   opacity: 0.8;
   transform: scale(var(--growth-scale));
   transform-origin: center;
@@ -279,6 +287,10 @@ body.light-theme .theme-icon {
   width: 100%;
   height: 100%;
 }
+
+.leaf-tier-1 { opacity: var(--leaf1-opacity); }
+.leaf-tier-2 { opacity: var(--leaf2-opacity); }
+.leaf-tier-3 { opacity: var(--leaf3-opacity); }
 
 .forest-friend.is-running {
   animation: wiggle 2.6s ease-in-out infinite;
@@ -357,8 +369,26 @@ button#resetBtn {
 .cycle-status {
   font-size: 13px;
   color: var(--text);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   letter-spacing: 0.4px;
+}
+
+.rewards {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  margin-bottom: 10px;
+}
+
+.rewards .divider {
+  opacity: 0.6;
 }
 
 .hint {
@@ -437,9 +467,9 @@ button#resetBtn {
   }
 
   .forest-friend {
-    width: 92px;
-    height: 92px;
-    top: 6px;
-    left: 8px;
+    width: 94px;
+    height: 94px;
+    top: 4px;
+    left: 4px;
   }
 }
