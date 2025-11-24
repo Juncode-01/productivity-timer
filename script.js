@@ -12,6 +12,10 @@ let remainingSeconds = focusSecondsTotal;
 let timerInterval = null;
 let isRunning = false;
 
+// rewards
+let totalXp = 0;
+let totalCoins = 0;
+
 // idle detection
 let lastActivityTime = Date.now();
 const IDLE_LIMIT_MS = 60 * 1000; // 60 seconds of no input = idle
@@ -27,6 +31,8 @@ const statusText = document.getElementById("statusText");
 const cycleStatus = document.getElementById("cycleStatus");
 const forestFriend = document.getElementById("forestFriend");
 const themeToggle = document.getElementById("themeToggle");
+const xpDisplay = document.getElementById("xpDisplay");
+const coinDisplay = document.getElementById("coinDisplay");
 
 const MIN_GROWTH = 0.7;
 const MAX_GROWTH = 1.3;
@@ -73,6 +79,17 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function smoothStep(value, start, end) {
+  if (value <= start) return 0;
+  if (value >= end) return 1;
+  const t = (value - start) / (end - start);
+  return clamp(t, 0, 1);
+}
+
 function updateGrowth(progressOverride) {
   if (!forestFriend) return;
 
@@ -93,6 +110,14 @@ function updateGrowth(progressOverride) {
 
   const growthScale = MIN_GROWTH + (MAX_GROWTH - MIN_GROWTH) * progress;
   forestFriend.style.setProperty("--growth-scale", growthScale.toFixed(3));
+
+  const leaf2 = smoothStep(progress, 0.25, 0.7);
+  const leaf3 = smoothStep(progress, 0.55, 1);
+  const leaf1 = lerp(0.7, 1, progress);
+
+  forestFriend.style.setProperty("--leaf1-opacity", leaf1.toFixed(3));
+  forestFriend.style.setProperty("--leaf2-opacity", lerp(0.15, 1, leaf2).toFixed(3));
+  forestFriend.style.setProperty("--leaf3-opacity", lerp(0.05, 1, leaf3).toFixed(3));
 }
 
 function readSessionMinutes(input, fallback, min, max) {
@@ -114,11 +139,58 @@ function readSessionMinutes(input, fallback, min, max) {
 function syncConfiguration() {
   const focusMins = readSessionMinutes(sessionLengthInput, DEFAULT_FOCUS_MINUTES, 1, 180);
   const breakMins = readSessionMinutes(breakLengthInput, DEFAULT_BREAK_MINUTES, 0, 60);
-  const cycles = readSessionMinutes(cycleCountInput, DEFAULT_CYCLES, 1, 12);
+  const cycles = readSessionMinutes(cycleCountInput, DEFAULT_CYCLES, 1, 20);
 
   focusSecondsTotal = focusMins * 60;
   breakSecondsTotal = breakMins * 60;
   totalCycles = cycles;
+}
+
+// ====== Rewards ======
+const STORAGE_KEYS = {
+  xp: "forest-timer-xp",
+  coins: "forest-timer-coins",
+};
+
+function updateRewardsDisplay() {
+  if (xpDisplay) {
+    xpDisplay.textContent = `XP: ${totalXp}`;
+  }
+  if (coinDisplay) {
+    coinDisplay.textContent = `Coins: ${totalCoins}`;
+  }
+}
+
+function loadRewards() {
+  try {
+    const storedXp = parseInt(localStorage.getItem(STORAGE_KEYS.xp), 10);
+    const storedCoins = parseInt(localStorage.getItem(STORAGE_KEYS.coins), 10);
+    totalXp = Number.isFinite(storedXp) ? storedXp : 0;
+    totalCoins = Number.isFinite(storedCoins) ? storedCoins : 0;
+  } catch (err) {
+    totalXp = 0;
+    totalCoins = 0;
+  }
+  updateRewardsDisplay();
+}
+
+function saveRewards() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.xp, String(totalXp));
+    localStorage.setItem(STORAGE_KEYS.coins, String(totalCoins));
+  } catch (err) {
+    // ignore storage issues
+  }
+}
+
+function awardFocusRewards() {
+  const focusMinutes = focusSecondsTotal / 60;
+  const xpGain = Math.round(focusMinutes * 10);
+  const coinGain = Math.max(1, Math.round(focusMinutes / 5));
+  totalXp += xpGain;
+  totalCoins += coinGain;
+  saveRewards();
+  updateRewardsDisplay();
 }
 
 // ====== Theme handling ======
@@ -166,12 +238,9 @@ if (themeToggle) {
 }
 
 initTheme();
+loadRewards();
 
 // ====== Timer control ======
-function getPhaseLabel() {
-  return isBreak ? "Break" : "Focus";
-}
-
 function handlePhaseComplete() {
   if (isBreak) {
     if (currentCycle < totalCycles) {
@@ -194,6 +263,8 @@ function handlePhaseComplete() {
     }
   } else {
     // focus completed
+    awardFocusRewards();
+
     if (breakSecondsTotal > 0) {
       isBreak = true;
       remainingSeconds = breakSecondsTotal;
@@ -231,6 +302,7 @@ function startTimer() {
   }
 
   isRunning = true;
+  lastActivityTime = Date.now();
   setStatus(isBreak ? "Break time 🌿" : `Focus cycle ${currentCycle} of ${totalCycles}.`);
   setCycleStatus();
   setDisabled(startBtn, true);
